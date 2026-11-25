@@ -35,12 +35,12 @@ export type Bit = { x: number; y: number; vx: number; vy: number; life: number; 
 
 const SAVE_KEY = "bochkolet-v1";
 
-export type SaveData = { best: number[]; unlocked: number; skin: SkinId };
+export type SaveData = { best: number[]; unlocked: number; skin: SkinId; endlessBest: number };
 
 const EMPTY_BEST = [0, 0, 0, 0, 0, 0];
 
 function loadSave(): SaveData {
-  const empty: SaveData = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel" };
+  const empty: SaveData = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel", endlessBest: 0 };
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return empty;
@@ -53,6 +53,7 @@ function loadSave(): SaveData {
       best,
       unlocked: Math.max(0, Math.min(5, (data.unlocked || 0) >= 4 ? 5 : data.unlocked || 0)),
       skin: skinById(data.skin).id,
+      endlessBest: Number(data.endlessBest) || 0,
     };
   } catch {
     return empty;
@@ -112,11 +113,14 @@ export class Sim {
   pops: Popup[] = [];
   rings: Ring[] = [];
   bits: Bit[] = [];
-  save: SaveData = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel" };
+  save: SaveData = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel", endlessBest: 0 };
   reduce = false;
+  endless = false;
+  fade = 0;
+  fromIndex = 0;
 
   constructor() {
-    this.save = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel" };
+    this.save = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel", endlessBest: 0 };
   }
 
   hydrate() {
@@ -149,7 +153,11 @@ export class Sim {
 
   rememberScore() {
     const pts = this.points;
-    if (pts > this.save.best[this.stageIndex]) this.save.best[this.stageIndex] = pts;
+    if (this.endless) {
+      if (pts > this.save.endlessBest) this.save.endlessBest = pts;
+    } else if (pts > this.save.best[this.stageIndex]) {
+      this.save.best[this.stageIndex] = pts;
+    }
     this.persist();
   }
 
@@ -191,6 +199,9 @@ export class Sim {
     this.announced = false;
     this.reason = "Бочку закрутило";
     this.resetBoss();
+    this.endless = false;
+    this.fade = 0;
+    this.fromIndex = index;
     if (this.stage.id === "boss") this.bossPhase = "fly";
     this.pops = [];
     this.rings = [];
@@ -198,7 +209,42 @@ export class Sim {
     this.phase = "play";
   }
 
-  // A/← is +steer (left). D/→ is −steer (right). Yaw grows when the craft goes left.
+  startEndless() {
+    this.start(0);
+    this.endless = true;
+    this.bossPhase = "off";
+  }
+
+  private extendRoute() {
+    const loop = STAGES.filter((stage) => stage.id !== "boss");
+    const here = loop.findIndex((stage) => stage.id === this.stage.id);
+    const next = loop[(here + 1) % loop.length] ?? loop[0];
+    this.fromIndex = this.stageIndex;
+    this.stageIndex = STAGES.findIndex((stage) => stage.id === next.id);
+    this.fade = 1;
+    const course = courseOf(next);
+    const base = this.goal * PX_PER_KM;
+    for (const { at, beat } of course.marks) {
+      this.ents.push({
+        kind: beat.kind,
+        x: base + at * PX_PER_M,
+        alt: beat.alt,
+        hit: false,
+        taken: false,
+        threatened: false,
+        near: false,
+        yeet: false,
+        yeetVy: 0,
+        yeetY: 0,
+        spin: Math.random() * 6,
+      });
+    }
+    this.goal += course.goal;
+    this.announced = false;
+    this.popup(next.name, this.playerX(), this.playerY() - 64);
+    this.ents = this.ents.filter((ent) => ent.yeet || ent.x > this.worldX - 1200);
+  }
+
   private steer(): number {
     if (this.steerOverride != null) return clamp(this.steerOverride, -1, 1);
     let s = 0;
@@ -245,6 +291,7 @@ export class Sim {
     this.alt = clamp(this.alt + climb * 0.64 * dt + gust * dt, 0.02, 0.94);
     this.worldX += this.speed * dt;
     this.meters = this.worldX / PX_PER_KM;
+    if (this.fade > 0) this.fade = Math.max(0, this.fade - dt / 1.7);
     this.speech = Math.min(1, this.speech + dt / 2.55);
     this.invuln = Math.max(0, this.invuln - dt);
     this.shake = Math.max(0, this.shake - dt * 22);
@@ -276,6 +323,8 @@ export class Sim {
         this.phase = "fail";
         this.rememberScore();
       }
+    } else if (this.endless && this.meters >= this.goal && this.failIn <= 0) {
+      this.extendRoute();
     } else if (this.stage.id === "boss") {
       this.bossStep(dt);
     } else if (!this.announced && this.meters >= this.goal - 0.2) {

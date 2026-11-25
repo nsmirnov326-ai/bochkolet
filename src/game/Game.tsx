@@ -133,6 +133,13 @@ export function Game() {
     setHud(snapshot(sim));
   }
 
+  function launchEndless() {
+    sfxRef.current?.playLevel(sim.skinDef.track);
+    sim.startEndless();
+    setPicked(0);
+    setHud(snapshot(sim));
+  }
+
   function pickSkin(id: SkinId) {
     sim.save.skin = id;
     sim.persist();
@@ -170,7 +177,7 @@ export function Game() {
                 <div className="k">{hud.flight}</div>
                 <div className="v">{hud.name}</div>
                 <div className="s">
-                  {hud.boss ? hud.bossLabel : `${hud.skin} · ${km(hud.meters)} / ${km(hud.goal)} км`}
+                  {hud.boss ? hud.bossLabel : hud.endless ? `${hud.skin} · ${km(hud.meters)} км · ${hud.name}` : `${hud.skin} · ${km(hud.meters)} / ${km(hud.goal)} км`}
                 </div>
               </div>
               <div className="ticket">
@@ -249,9 +256,14 @@ export function Game() {
                       </button>
                     ))}
                   </div>
-                  <button type="button" className="go" onClick={() => launch(picked)}>
-                    Start
-                  </button>
+                  <div className="row">
+                    <button type="button" className="go" onClick={() => launch(picked)}>
+                      Start
+                    </button>
+                    <button type="button" className="ghost" onClick={launchEndless}>
+                      Без конца
+                    </button>
+                  </div>
                   <p className="help">
                     {stage.flight} · {stage.name} · {stage.km} км · {stage.scenery.when}. W / ↑ газ и набор · S / ↓ вниз · A / ← влево · D / → вправо · пробел — речь
                   </p>
@@ -263,7 +275,7 @@ export function Game() {
                   <div className="kicker">{hud.flight} · {hud.name}</div>
                   <h1>Закрутило</h1>
                   <p className="lede">{hud.reason}. Бочка цела условно, рейс — нет.</p>
-                  <p className="help">Счёт {hud.points}. Лучший на рейсе {hud.best}.</p>
+                  <p className="help">Счёт {hud.points}. {hud.endless ? `Лучший заход ${hud.endlessBest}.` : `Лучший на рейсе ${hud.best}.`}</p>
                   <div className="row">
                     <button type="button" className="go" onClick={() => launch(hud.stage)}>
                       <span>ещё заход</span>
@@ -411,6 +423,8 @@ function snapshot(sim: Sim) {
     unlocked: sim.save.unlocked,
     skin: sim.skinDef.name,
     combo: sim.combo,
+    endless: sim.endless,
+    endlessBest: sim.save.endlessBest,
     boss: sim.bossPhase !== "off" && sim.bossPhase !== "fly",
     bossLabel: sim.bossLabel || sim.stage.name,
   };

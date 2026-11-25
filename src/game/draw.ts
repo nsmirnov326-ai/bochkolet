@@ -1,4 +1,4 @@
-import { KINDS, type KindId } from "./content";
+import { KINDS, STAGES, type KindId } from "./content";
 import type { Sim } from "./sim";
 
 const BASE_W = 960;
@@ -54,18 +54,19 @@ function tiled(
   }
 }
 
-export function draw(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<string, HTMLImageElement | undefined>) {
-  const scene = sim.stage.scenery;
+function paintBackdrop(
+  ctx: CanvasRenderingContext2D,
+  sim: Sim,
+  images: Record<string, HTMLImageElement | undefined>,
+  scene: (typeof STAGES)[number]["scenery"],
+  alpha: number,
+) {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
   const sky = images[scene.sky] ?? images.sky;
   const far = images[scene.far] ?? images.far;
   const ground = images[scene.ground] ?? images.ground;
-  ctx.clearRect(0, 0, BASE_W, BASE_H);
-  const mag = sim.reduce ? sim.shake * 0.25 : sim.shake;
-  const ox = Math.sin(sim.time * 73) * mag;
-  const oy = Math.cos(sim.time * 59) * mag;
-  ctx.save();
-  ctx.translate(ox, oy);
-
   if (sky && ready(sky)) {
     const drift = Math.min(70, sim.worldX * 0.015);
     ctx.drawImage(sky, -drift, -8, BASE_W + 70, BASE_H + 16);
@@ -73,7 +74,6 @@ export function draw(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<str
     ctx.fillStyle = "#8eb6d4";
     ctx.fillRect(0, 0, BASE_W, BASE_H);
   }
-
   const groundY = BASE_H * 0.8;
   if (far && ready(far)) {
     const plate = seamless(far);
@@ -84,6 +84,24 @@ export function draw(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<str
     const plate = seamless(ground);
     const destH = BASE_H * 0.34;
     tiled(ctx, plate, plate.width, plate.height, groundY - 18, destH, sim.worldX);
+  }
+  ctx.restore();
+}
+
+export function draw(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<string, HTMLImageElement | undefined>) {
+  const scene = sim.stage.scenery;
+  ctx.clearRect(0, 0, BASE_W, BASE_H);
+  const mag = sim.reduce ? sim.shake * 0.25 : sim.shake;
+  const ox = Math.sin(sim.time * 73) * mag;
+  const oy = Math.cos(sim.time * 59) * mag;
+  ctx.save();
+  ctx.translate(ox, oy);
+
+  if (sim.fade > 0) {
+    paintBackdrop(ctx, sim, images, STAGES[sim.fromIndex]?.scenery ?? scene, 1);
+    paintBackdrop(ctx, sim, images, scene, 1 - sim.fade);
+  } else {
+    paintBackdrop(ctx, sim, images, scene, 1);
   }
 
   if (sim.speed > 380 && sim.phase === "play") {
