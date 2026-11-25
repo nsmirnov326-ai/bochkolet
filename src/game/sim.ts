@@ -31,6 +31,7 @@ export type Ent = {
 
 export type Popup = { text: string; x: number; y: number; life: number };
 export type Ring = { x: number; y: number; r: number; life: number };
+export type Blast = { x: number; y: number; life: number };
 export type Bit = { x: number; y: number; vx: number; vy: number; life: number; max: number; color: string; size: number };
 
 const SAVE_KEY = "bochkolet-v1";
@@ -116,6 +117,7 @@ export class Sim {
   ents: Ent[] = [];
   pops: Popup[] = [];
   rings: Ring[] = [];
+  blasts: Blast[] = [];
   bits: Bit[] = [];
   save: SaveData = { best: EMPTY_BEST.slice(), unlocked: 0, skin: "barrel", endlessBest: 0 };
   reduce = false;
@@ -209,6 +211,7 @@ export class Sim {
     if (this.stage.id === "boss") this.bossPhase = "fly";
     this.pops = [];
     this.rings = [];
+    this.blasts = [];
     this.bits = [];
     this.phase = "play";
   }
@@ -364,13 +367,23 @@ export class Sim {
 
   private cast() {
     this.speech = 0;
-    this.speed = Math.min(this.speed + 110 * this.skinDef.pace, 560 * this.skinDef.pace);
-    this.alt = Math.min(0.92, this.alt + 0.07);
-    const x = this.playerX();
+    this.speed = Math.max(90, this.speed - 60);
+    this.shake = Math.min(8, this.shake + 3);
+    const x = this.playerX() + 36;
     const y = this.playerY();
-    this.rings.push({ x, y, r: 20, life: 0.45 });
-    this.burst(x, y, "#e6b325", 16);
-    let n = 0;
+    this.blasts.push({ x, y, life: 0.26 });
+    for (let i = 0; i < 8; i++) {
+      this.bits.push({
+        x,
+        y: y + (Math.random() - 0.5) * 16,
+        vx: 260 + Math.random() * 280,
+        vy: (Math.random() - 0.5) * 70,
+        life: 0.22,
+        max: 0.22,
+        color: "#d7e4ee",
+        size: 3 + Math.random() * 3,
+      });
+    }
     for (const ent of this.ents) {
       if (ent.hit || ent.taken || ent.yeet || !KINDS[ent.kind].hurt) continue;
       const box = this.entBox(ent);
@@ -378,18 +391,16 @@ export class Sim {
       const cy = box.y + box.h / 2;
       const dx = cx - x;
       const dy = cy - y;
-      if (dx > -30 && dx * dx + dy * dy < 230 * 230) {
+      if (dx > 0 && dx < 320 && Math.abs(dy) < 96) {
         ent.yeet = true;
-        ent.yeetVy = -360;
+        ent.yeetVy = -420;
         ent.yeetY = 0;
         this.chain();
         this.bonus += 70 * this.combo;
-        n += 1;
       }
     }
-    if (n) this.popup(n > 1 ? "СДУЛО ПАЧКУ" : "СДУЛО", x, y - 56);
-    this.bossWaves = this.bossWaves.filter((wave) => (wave.x - x) ** 2 + (wave.y - y) ** 2 > 210 * 210);
-    this.bossLetters = this.bossLetters.filter((letter) => (letter.x - x) ** 2 + (letter.y - y) ** 2 > 200 * 200);
+    this.bossWaves = this.bossWaves.filter((wave) => !(wave.x > x && wave.x < x + 340 && Math.abs(wave.y - y) < 110));
+    this.bossLetters = this.bossLetters.filter((letter) => !(letter.x > x && letter.x < x + 320 && Math.abs(letter.y - y) < 100));
   }
 
   private collide() {
@@ -420,7 +431,7 @@ export class Sim {
         if (kind.pickup === "mic") {
           this.speech = Math.min(1, this.speech + 0.55);
           this.bonus += 140;
-          this.popup("ЭФИР", box.x, box.y);
+          this.popup("БАЛЛОН", box.x, box.y);
         } else if (kind.pickup === "patch") {
           if (this.lives < 3) this.lives += 1;
           else this.bonus += 180;
@@ -654,6 +665,8 @@ export class Sim {
       ring.r += dt * 520;
     }
     this.rings = this.rings.filter((r) => r.life > 0);
+    for (const blast of this.blasts) blast.life -= dt;
+    this.blasts = this.blasts.filter((b) => b.life > 0);
     for (const bit of this.bits) {
       bit.life -= dt;
       bit.x += bit.vx * dt;

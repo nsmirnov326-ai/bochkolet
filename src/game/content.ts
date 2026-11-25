@@ -58,7 +58,7 @@ export const KINDS: Record<KindId, Kind> = {
   tree: { id: "tree", file: "tree", h: 196, hurt: true, ground: true, slim: true, quip: "Яблоня не расступается" },
   fence: { id: "fence", file: "fence", h: 78, hurt: true, ground: true, slim: false, quip: "Забор был против" },
   pole: { id: "pole", file: "pole", h: 228, hurt: true, ground: true, slim: true, quip: "Провода помнят всех" },
-  mic: { id: "mic", file: "mic", h: 70, hurt: false, ground: false, slim: true, pickup: "mic", quip: "Эфир" },
+  mic: { id: "mic", file: "mic", h: 70, hurt: false, ground: false, slim: true, pickup: "mic", quip: "Баллон" },
   can: { id: "can", file: "can", h: 62, hurt: false, ground: false, slim: false, pickup: "patch", quip: "Заплатка" },
   case: { id: "case", file: "case", h: 64, hurt: true, ground: false, slim: false, quip: "Портфель тяжёлый" },
   bottle: { id: "bottle", file: "bottle", h: 78, hurt: true, ground: false, slim: true, quip: "Шампанское в штопор" },
@@ -302,7 +302,7 @@ export const RADIOS = [
   "Это не штопор. Это пресс-подход.",
   "Ветер попутный. Оптимизм тоже.",
   "Диван в эшелон не входит. Уступите.",
-  "Речь — штатное противообледенительное.",
+  "Пневмопушка — штатное противообледенительное.",
 ];
 
 /** Пикселей на километр маршрута. Крейсер бочки ~230 км/ч, МиГ ~370 км/ч. */

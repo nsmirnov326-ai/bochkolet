@@ -140,6 +140,17 @@ export function draw(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<str
     ctx.restore();
   }
 
+  for (const blast of sim.blasts) {
+    const k = 1 - blast.life / 0.26;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, blast.life * 3);
+    ctx.fillStyle = "rgba(214, 228, 238, 0.55)";
+    ctx.beginPath();
+    ctx.ellipse(blast.x + 30 + k * 150, blast.y, 22 + k * 78, 12 + k * 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   for (const bit of sim.bits) {
     ctx.globalAlpha = Math.max(0, bit.life / bit.max);
     ctx.fillStyle = bit.color;

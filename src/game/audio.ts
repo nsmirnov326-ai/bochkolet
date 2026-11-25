@@ -325,10 +325,25 @@ export class Sfx {
     this.tone(1040, 0.12, "triangle", 0.05);
   }
 
-  speech() {
-    this.duck(0.4, 0.34);
-    this.noiseHit(0.22);
-    this.tone(280, 0.18, "sawtooth", 0.05);
+  cannon() {
+    if (this._muted || !this.ctx || !this.noise) return;
+    this.duck(0.5, 0.16);
+    const t = this.ctx.currentTime;
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noise;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(2400, t);
+    filter.frequency.exponentialRampToValueAtTime(220, t + 0.16);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.55, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    src.start(t);
+    src.stop(t + 0.2);
+    this.tone(70, 0.07, "sine", 0.09);
   }
 
   near() {

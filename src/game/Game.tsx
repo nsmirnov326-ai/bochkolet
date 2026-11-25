@@ -80,7 +80,7 @@ export function Game() {
         steps += 1;
       }
       if (sim.lives < before.lives) sfx.crash();
-      else if (sim.speech < before.speech - 0.2) sfx.speech();
+      else if (sim.speech < before.speech - 0.2) sfx.cannon();
       else if (sim.bonus > before.bonus) sfx.pickup();
       while (sim.cue.length) {
         const cue = sim.cue.shift();
@@ -187,7 +187,7 @@ export function Game() {
                 <div className="s">{hud.points} очков{hud.combo > 1 ? ` · ×${hud.combo}` : ""}</div>
               </div>
             </div>
-            {hud.hint > 0 && <div className="radio">Газ вверх. Вплотную копится серия. Речь сдувает и подбрасывает</div>}
+            {hud.hint > 0 && <div className="radio">Газ вверх. Вплотную копится серия. Пневмопушка бьёт вперёд</div>}
             {hud.hint <= 0 && <div className="radio">{hud.radio}</div>}
             <div className="hud-bottom">
               <div className="ticket">
@@ -199,7 +199,7 @@ export function Game() {
                 </div>
               </div>
               <div className="ticket">
-                <div className="k">речь</div>
+                <div className="k">пушка</div>
                 <div className={hud.speech >= 1 ? "meter ready" : "meter"}>
                   <span style={{ width: `${Math.round(hud.speech * 100)}%` }} />
                 </div>
@@ -219,7 +219,7 @@ export function Game() {
                   <p className="sub">Дворовый лётный симулятор</p>
                   <p className="lede">
                     Борт собран во дворе: бочка, фанера и пропеллер от забора. Пять рейсов над бельём, голубями и
-                    диванами. Речь сдувает всё, что не пристёгнуто, и чуть подбрасывает борт.
+                    диванами. Пневмопушка бьёт вперёд и сбивает то, что не пристёгнуто.
                   </p>
                   <div className="routes">
                     {STAGES.map((item, index) => (
@@ -266,7 +266,7 @@ export function Game() {
                     </button>
                   </div>
                   <p className="help">
-                    {stage.flight} · {stage.name} · {stage.km} км · {stage.scenery.when}. W / ↑ газ и набор · S / ↓ вниз · A / ← влево · D / → вправо · пробел — речь
+                    {stage.flight} · {stage.name} · {stage.km} км · {stage.scenery.when}. W / ↑ газ и набор · S / ↓ вниз · A / ← влево · D / → вправо · пробел — пневмопушка
                   </p>
                 </>
               )}
@@ -359,7 +359,7 @@ export function Game() {
           <Hold code="ArrowRight" label="→" sim={sim} />
           <Hold code="ArrowDown" label="↓" className="down" sim={sim} />
         </div>
-        <Hold code="Space" label="РЕЧЬ" className="speech-btn" sim={sim} />
+        <Hold code="Space" label="ПУШКА" className="speech-btn" sim={sim} />
       </div>
     </div>
   );
