@@ -13,10 +13,10 @@ export type SkinDef = {
 };
 
 export const SKINS: SkinDef[] = [
-  { id: "barrel", name: "Бочка", file: "hero", line: "двор", tune: "фонк", track: "/game/track.mp3", pace: 1, drawH: 168, prop: true },
-  { id: "gachi", name: "Гачимучилёт", file: "hero-gachi", line: "Билли и цепи", tune: "gachi remix", track: "/game/track-gachi.mp3", pace: 1, drawH: 168, prop: true },
-  { id: "baron", name: "Красный Патрон", file: "hero-baron", line: "пулемёт и шасси", tune: "Red Baron", track: "/game/track-baron.mp3", pace: 1, drawH: 168, prop: true },
-  { id: "mig", name: "МиГ-31", file: "hero-mig", line: "быстрее", tune: "три полоски", track: "/game/track-mig.mp3", pace: 1.62, drawH: 120, prop: false },
+  { id: "barrel", name: "Бочка", file: "hero", line: "двор", tune: "фонк", track: "/game/track.mp3", pace: 1, drawH: 140, prop: true },
+  { id: "gachi", name: "Гачимучилёт", file: "hero-gachi", line: "Билли и цепи", tune: "gachi remix", track: "/game/track-gachi.mp3", pace: 1, drawH: 132, prop: true },
+  { id: "baron", name: "Красный Патрон", file: "hero-baron", line: "пуля и балки", tune: "Red Baron", track: "/game/track-baron.mp3", pace: 1, drawH: 118, prop: true },
+  { id: "mig", name: "МиГ-31", file: "hero-mig", line: "быстрее", tune: "три полоски", track: "/game/track-mig.mp3", pace: 1.62, drawH: 100, prop: false },
 ];
 
 export function skinById(id: string | undefined): SkinDef {
@@ -83,6 +83,8 @@ export type StageDef = {
   brief: string;
   clear: string;
   gust: number;
+  /** Длина рейса в километрах. Одна и та же для всех бортов. */
+  km: number;
   scenery: Scenery;
   beats: Beat[];
 };
@@ -186,6 +188,7 @@ export const STAGES: StageDef[] = [
     brief: "Утро. Взлёт с грядки. Курица маршрут не согласовывала, бельё — тем более.",
     clear: "Забор позади. Бочка всё ещё верит в аэродинамику.",
     gust: 0,
+    km: 1.5,
     scenery: {
       sky: "sky-yard",
       far: "far-yard",
@@ -194,7 +197,7 @@ export const STAGES: StageDef[] = [
       vignette: "rgba(80, 48, 18, 0.2)",
       streak: "#f6e2b8",
     },
-    beats: extend(yard),
+    beats: yard,
   },
   {
     id: "district",
@@ -203,6 +206,7 @@ export const STAGES: StageDef[] = [
     brief: "Полдень между панелями. Диван вышел на встречный эшелон без заявки.",
     clear: "Двор позади, район пережит. Пропеллер ещё круглый.",
     gust: 0.05,
+    km: 1.5,
     scenery: {
       sky: "sky-district",
       far: "far-district",
@@ -211,7 +215,7 @@ export const STAGES: StageDef[] = [
       vignette: "rgba(30, 48, 70, 0.16)",
       streak: "#f4f0e4",
     },
-    beats: extend(district),
+    beats: district,
   },
   {
     id: "highway",
@@ -220,6 +224,7 @@ export const STAGES: StageDef[] = [
     brief: "К вечеру над пробкой. Билборды аплодируют сами себе.",
     clear: "Пробка осталась внизу. Бочка считает это победой.",
     gust: 0.13,
+    km: 1.5,
     scenery: {
       sky: "sky-highway",
       far: "far-highway",
@@ -228,7 +233,7 @@ export const STAGES: StageDef[] = [
       vignette: "rgba(90, 40, 10, 0.22)",
       streak: "#ffd7a1",
     },
-    beats: extend(highway),
+    beats: highway,
   },
   {
     id: "field",
@@ -237,6 +242,7 @@ export const STAGES: StageDef[] = [
     brief: "Закат. Открытый воздух, только ниже. Провода помнят каждого.",
     clear: "Поле пройдено. Яблоки не засчитали как зенит.",
     gust: 0.08,
+    km: 1.5,
     scenery: {
       sky: "sky-field",
       far: "far-field",
@@ -245,7 +251,7 @@ export const STAGES: StageDef[] = [
       vignette: "rgba(70, 20, 30, 0.28)",
       streak: "#ffc2a0",
     },
-    beats: extend(field),
+    beats: field,
   },
   {
     id: "summit",
@@ -254,6 +260,7 @@ export const STAGES: StageDef[] = [
     brief: "Ночь. Шампанское, портфели и красная дорожка где-то справа.",
     clear: "Борт сел. Бочка цела, рейс закрыт.",
     gust: 0.17,
+    km: 1.5,
     scenery: {
       sky: "sky-summit",
       far: "far-summit",
@@ -262,7 +269,7 @@ export const STAGES: StageDef[] = [
       vignette: "rgba(4, 8, 24, 0.45)",
       streak: "#d7e4ff",
     },
-    beats: extend(summit),
+    beats: summit,
   },
   {
     id: "boss",
@@ -271,6 +278,7 @@ export const STAGES: StageDef[] = [
     brief: "Сначала обычный подлёт. Потом слева на всю сторону высовывается голова.",
     clear: "Мирный договор. Палец вверх.",
     gust: 0,
+    km: 1.5,
     scenery: {
       sky: "sky-summit",
       far: "far-summit",
@@ -297,14 +305,21 @@ export const RADIOS = [
   "Речь — штатное противообледенительное.",
 ];
 
-export const PX_PER_M = 42;
+/** Пикселей на километр маршрута. Крейсер бочки ~230 км/ч, МиГ ~370 км/ч. */
+export const PX_PER_KM = 4200;
+/** Внутренний шаг разметки. 100 таких метров = 1 км на табло. */
+export const PX_PER_M = PX_PER_KM / 100;
 
 export function courseOf(stage: StageDef) {
-  let m = 42;
+  const sum = stage.beats.reduce((total, beat) => total + beat.gap, 0);
+  const leadKm = 0.12;
+  const usable = Math.max(0.4, stage.km - leadKm);
+  const gapKm = usable / sum;
+  let cursor = leadKm;
   const marks = stage.beats.map((beat) => {
-    const at = m;
-    m += beat.gap;
-    return { at, beat };
+    const at = cursor;
+    cursor += beat.gap * gapKm;
+    return { at: at * 100, beat };
   });
-  return { marks, goal: Math.round(m + 55) };
+  return { marks, goal: stage.km };
 }

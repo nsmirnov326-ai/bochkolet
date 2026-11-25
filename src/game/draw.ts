@@ -319,7 +319,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<stri
     const ps = hh * 0.36;
     ctx.save();
     // Flight is toward the right, so the nose is the right end of the barrel.
-    ctx.translate(-hw / 2 + hw * 0.95, -hh / 2 + hh * 0.51);
+    ctx.translate(-hw / 2 + hw * 0.97, -hh / 2 + hh * 0.5);
     ctx.rotate(sim.prop);
     ctx.drawImage(prop, -ps / 2, -ps / 2, ps, ps);
     ctx.restore();

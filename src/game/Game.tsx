@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
-import { SKINS, STAGES, type SkinId } from "./content";
+import { PX_PER_KM, SKINS, STAGES, type SkinId } from "./content";
 import { ASSET_NAMES, VIEW, assetUrl, draw } from "./draw";
 import { Sfx } from "./audio";
 import { Sim, type Phase } from "./sim";
@@ -175,7 +175,7 @@ export function Game() {
               </div>
               <div className="ticket">
                 <div className="k">скорость</div>
-                <div className="v">{Math.round(hud.speed * 0.42)} км/ч</div>
+                <div className="v">{Math.round((hud.speed * 3600) / PX_PER_KM)} км/ч</div>
                 <div className="s">{hud.points} очков{hud.combo > 1 ? ` · ×${hud.combo}` : ""}</div>
               </div>
             </div>
@@ -226,7 +226,7 @@ export function Game() {
                         }}
                       >
                         {item.name}
-                        <small>{hud.bests[index] ? `${hud.bests[index]}` : item.flight}</small>
+                        <small>{item.km} км</small>
                       </button>
                     ))}
                   </div>
@@ -253,7 +253,7 @@ export function Game() {
                     Start
                   </button>
                   <p className="help">
-                    {stage.flight} · {stage.name} · {stage.scenery.when}. W / ↑ газ и набор · S / ↓ вниз · A / ← влево · D / → вправо · пробел — речь
+                    {stage.flight} · {stage.name} · {stage.km} км · {stage.scenery.when}. W / ↑ газ и набор · S / ↓ вниз · A / ← влево · D / → вправо · пробел — речь
                   </p>
                 </>
               )}
@@ -385,8 +385,8 @@ function Hold({
   );
 }
 
-function km(meters: number) {
-  return (meters / 100).toFixed(meters >= 10000 ? 0 : 1);
+function km(value: number) {
+  return Math.max(0, value).toFixed(1);
 }
 
 function snapshot(sim: Sim) {

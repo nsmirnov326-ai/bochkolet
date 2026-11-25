@@ -1,4 +1,4 @@
-import { KINDS, PX_PER_M, RADIOS, STAGES, courseOf, skinById, type KindId, type SkinId, type StageDef } from "./content";
+import { KINDS, PX_PER_KM, PX_PER_M, RADIOS, STAGES, courseOf, skinById, type KindId, type SkinId, type StageDef } from "./content";
 
 export type Phase = "title" | "play" | "fail" | "clear" | "done" | "treaty";
 
@@ -132,7 +132,7 @@ export class Sim {
   }
 
   get points() {
-    return Math.floor(this.meters) * 10 + this.bonus;
+    return Math.floor(this.meters * 100) * 10 + this.bonus;
   }
 
   get radioLine() {
@@ -191,10 +191,7 @@ export class Sim {
     this.announced = false;
     this.reason = "Бочку закрутило";
     this.resetBoss();
-    if (this.stage.id === "boss") {
-      this.goal = 9999;
-      this.bossPhase = "fly";
-    }
+    if (this.stage.id === "boss") this.bossPhase = "fly";
     this.pops = [];
     this.rings = [];
     this.bits = [];
@@ -247,7 +244,7 @@ export class Sim {
     const gust = Math.sin(this.time * 1.7 + this.stageIndex * 1.3) * this.stage.gust;
     this.alt = clamp(this.alt + climb * 0.64 * dt + gust * dt, 0.02, 0.94);
     this.worldX += this.speed * dt;
-    this.meters = this.worldX / PX_PER_M;
+    this.meters = this.worldX / PX_PER_KM;
     this.speech = Math.min(1, this.speech + dt / 2.55);
     this.invuln = Math.max(0, this.invuln - dt);
     this.shake = Math.max(0, this.shake - dt * 22);
@@ -281,7 +278,7 @@ export class Sim {
       }
     } else if (this.stage.id === "boss") {
       this.bossStep(dt);
-    } else if (!this.announced && this.meters >= this.goal - 16) {
+    } else if (!this.announced && this.meters >= this.goal - 0.2) {
       this.announced = true;
       this.popup("ПОЛОСА", this.playerX(), this.playerY() - 70);
     } else if (this.meters >= this.goal && this.failIn <= 0) {
@@ -401,7 +398,7 @@ export class Sim {
 
   private bossStep(dt: number) {
     if (this.bossPhase === "fly") {
-      if (this.meters > 52) {
+      if (this.meters >= this.goal) {
         this.bossPhase = "in";
         this.bossEnter = 0;
         this.bossLabel = "Слева по борту";
