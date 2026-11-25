@@ -188,7 +188,7 @@ export const STAGES: StageDef[] = [
     brief: "Утро. Взлёт с грядки. Курица маршрут не согласовывала, бельё — тем более.",
     clear: "Забор позади. Бочка всё ещё верит в аэродинамику.",
     gust: 0,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-yard",
       far: "far-yard",
@@ -206,7 +206,7 @@ export const STAGES: StageDef[] = [
     brief: "Полдень между панелями. Диван вышел на встречный эшелон без заявки.",
     clear: "Двор позади, район пережит. Пропеллер ещё круглый.",
     gust: 0.05,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-district",
       far: "far-district",
@@ -224,7 +224,7 @@ export const STAGES: StageDef[] = [
     brief: "К вечеру над пробкой. Билборды аплодируют сами себе.",
     clear: "Пробка осталась внизу. Бочка считает это победой.",
     gust: 0.13,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-highway",
       far: "far-highway",
@@ -242,7 +242,7 @@ export const STAGES: StageDef[] = [
     brief: "Закат. Открытый воздух, только ниже. Провода помнят каждого.",
     clear: "Поле пройдено. Яблоки не засчитали как зенит.",
     gust: 0.08,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-field",
       far: "far-field",
@@ -260,7 +260,7 @@ export const STAGES: StageDef[] = [
     brief: "Ночь. Шампанское, портфели и красная дорожка где-то справа.",
     clear: "Борт сел. Бочка цела, рейс закрыт.",
     gust: 0.17,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-summit",
       far: "far-summit",
@@ -278,7 +278,7 @@ export const STAGES: StageDef[] = [
     brief: "Сначала обычный подлёт. Потом слева на всю сторону высовывается голова.",
     clear: "Мирный договор. Палец вверх.",
     gust: 0,
-    km: 1.5,
+    km: 3,
     scenery: {
       sky: "sky-summit",
       far: "far-summit",
