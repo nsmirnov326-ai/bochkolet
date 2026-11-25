@@ -115,6 +115,11 @@ export class Sfx {
     this.sting(EAGLE, 0.85, 2.2);
   }
 
+  /** Same scream as the attack, half as loud. */
+  eagleSoft() {
+    this.sting(EAGLE, 0.42, 2.2);
+  }
+
   maga() {
     this.sting(MAGA, 0.9, 3.1);
   }

@@ -97,6 +97,10 @@ export class Sim {
   bossFist = 0;
   bossDeal = 0;
   bossThumb = 0;
+  bossFlag = 0;
+  bossBird = 0;
+  bossPaper = 0;
+  bossSoft = false;
   bossTieY = -1;
   bossTieHot = false;
   bossScript = 0;
@@ -435,6 +439,10 @@ export class Sim {
     this.bossFist = 0;
     this.bossDeal = 0;
     this.bossThumb = 0;
+    this.bossFlag = 0;
+    this.bossBird = 0;
+    this.bossPaper = 0;
+    this.bossSoft = false;
     this.bossTieY = -1;
     this.bossTieHot = false;
     this.bossScript = 0;
@@ -488,21 +496,32 @@ export class Sim {
     if (this.bossPhase === "drop") {
       this.bossDrop += dt * 780;
       this.spin += dt * 7;
+      this.bossFist = Math.min(1.4, this.bossFist + dt * 1.6);
       if (this.bossDrop > 640) {
         this.bossPhase = "deal";
         this.bossFace = "smile";
-        this.bossDeal = 0;
+        this.bossFlag = 0;
+        this.bossBird = 0;
         this.bossThumb = 0;
+        this.bossPaper = 0;
+        this.bossSoft = false;
         this.bossScriptT = 0;
         this.bossLabel = "Мирный договор";
       }
       return;
     }
     if (this.bossPhase === "deal") {
-      this.bossDeal = Math.min(1, this.bossDeal + dt / 0.7);
-      this.bossThumb = Math.min(1, Math.max(0, this.bossDeal - 0.35) / 0.6);
       this.bossScriptT += dt;
-      if (this.bossScriptT > 3.2) {
+      const t = this.bossScriptT;
+      this.bossFlag = clamp((t - 0.15) / 0.75, 0, 1);
+      this.bossBird = clamp((t - 1.05) / 0.5, 0, 1);
+      this.bossThumb = clamp((t - 1.85) / 0.55, 0, 1);
+      this.bossPaper = clamp((t - 2.55) / 0.7, 0, 1);
+      if (!this.bossSoft && t >= 1.05) {
+        this.bossSoft = true;
+        this.cue.push("eagle-soft");
+      }
+      if (t > 5.4) {
         this.rememberScore();
         this.phase = "treaty";
       }

@@ -242,44 +242,119 @@ function drawBoss(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<string
     ctx.drawImage(face, -hw / 2, -hh / 2, hw, hh);
     ctx.restore();
   }
-  if (sim.bossPhase === "fist" || sim.bossPhase === "drop" || sim.bossPhase === "deal") {
+  if (sim.bossPhase === "fist" || sim.bossPhase === "drop") {
     const fist = images["trump-fist"];
     if (fist && ready(fist)) {
       const s = 210;
       const w = s * (fist.width / fist.height);
       const x = sim.playerX() - 10;
       const from = -180;
-      const to = sim.playerY() - 20;
-      const y = sim.bossPhase === "fist" ? from + (to - from) * sim.bossFist : to;
-      ctx.save();
-      ctx.drawImage(fist, x - w / 2, y - s / 2, w, s);
-      ctx.restore();
+      const impact = sim.playerY() - sim.bossDrop - 20;
+      const k = sim.bossPhase === "fist" ? sim.bossFist : Math.min(1, sim.bossDrop / 260);
+      const y = sim.bossPhase === "fist" ? from + (impact - from) * sim.bossFist : impact - k * 460;
+      if (y < BASE_H + 40) {
+        ctx.save();
+        ctx.drawImage(fist, x - w / 2, y - s / 2, w, s);
+        ctx.restore();
+      }
     }
   }
-  if (sim.bossPhase === "deal") {
-    const hand = images["trump-deal"];
-    if (hand && ready(hand)) {
-      const hh = 280 * Math.max(0.2, sim.bossDeal);
-      const hw = hh * (hand.width / hand.height);
-      const y = BASE_H + 40 - sim.bossDeal * 250;
-      ctx.save();
-      ctx.drawImage(hand, 70, y - hh, hw, hh);
-      ctx.fillStyle = "#1c1712";
-      ctx.font = "700 16px Manrope, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("мирный договор", 70 + hw * 0.55, y - hh * 0.42);
-      ctx.restore();
-    }
-    const thumb = images["trump-thumb"];
-    if (thumb && ready(thumb) && sim.bossThumb > 0) {
-      const s = 150 * sim.bossThumb;
-      const w = s * (thumb.width / thumb.height);
-      ctx.save();
-      ctx.globalAlpha = sim.bossThumb;
-      ctx.drawImage(thumb, 430, BASE_H * 0.58, w, s);
-      ctx.restore();
+  if (sim.bossPhase !== "deal") return;
+  if (sim.bossFlag > 0) drawFlag(ctx, sim.bossFlag);
+  const bird = images.eagle;
+  if (bird && ready(bird) && sim.bossBird > 0) {
+    const s = 188;
+    const w = s * (bird.width / bird.height);
+    const x = 560 + (1 - sim.bossBird) * 80;
+    const y = 168;
+    ctx.save();
+    ctx.globalAlpha = sim.bossBird;
+    ctx.drawImage(bird, x, y, w, s);
+    ctx.restore();
+  }
+  const thumb = images["trump-thumb"];
+  if (thumb && ready(thumb) && sim.bossThumb > 0) {
+    const s = 250;
+    const w = s * (thumb.width / thumb.height);
+    ctx.save();
+    ctx.translate(BASE_W + 70 - sim.bossThumb * 20, BASE_H + 60 - sim.bossThumb * 10);
+    ctx.rotate(-0.72);
+    ctx.globalAlpha = Math.min(1, sim.bossThumb * 1.4);
+    ctx.drawImage(thumb, -w * 0.42, -s * 0.96, w, s);
+    ctx.restore();
+  }
+  if (sim.bossPaper > 0) drawTreaty(ctx, sim.bossPaper);
+}
+
+function drawFlag(ctx: CanvasRenderingContext2D, t: number) {
+  const rise = t * 250;
+  const poleX = 800;
+  const top = BASE_H + 8 - rise;
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, t * 1.5);
+  ctx.fillStyle = "#5c3b22";
+  ctx.fillRect(poleX, top, 7, rise + 16);
+  ctx.fillStyle = "#d4a017";
+  ctx.beginPath();
+  ctx.arc(poleX + 3.5, top, 6, 0, Math.PI * 2);
+  ctx.fill();
+  const fw = 138;
+  const fh = 88;
+  ctx.translate(poleX + 7, top + 4);
+  const stripe = fh / 13;
+  for (let i = 0; i < 13; i++) {
+    ctx.fillStyle = i % 2 === 0 ? "#b22234" : "#f7f4ee";
+    ctx.fillRect(0, i * stripe, fw, stripe + 0.4);
+  }
+  ctx.fillStyle = "#3c3b6e";
+  ctx.fillRect(0, 0, fw * 0.4, stripe * 7);
+  ctx.fillStyle = "#f7f4ee";
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 6; col++) {
+      if ((row + col) % 2 === 1) continue;
+      star(ctx, 7 + col * 8.2, 6 + row * 8.4, 2.3);
     }
   }
+  ctx.restore();
+}
+
+function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    const b = a + Math.PI / 5;
+    ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+    ctx.lineTo(x + Math.cos(b) * r * 0.42, y + Math.sin(b) * r * 0.42);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawTreaty(ctx: CanvasRenderingContext2D, t: number) {
+  const w = 360;
+  const h = 188;
+  const x = (BASE_W - w) / 2;
+  const y = BASE_H + 16 - t * (h + 28);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.03);
+  ctx.fillStyle = "#f4ead2";
+  ctx.strokeStyle = "#1c1712";
+  ctx.lineWidth = 3;
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeRect(0, 0, w, h);
+  ctx.fillStyle = "#1c1712";
+  ctx.textAlign = "center";
+  ctx.font = "800 18px Unbounded, Manrope, sans-serif";
+  ctx.fillText("МИРНЫЙ ДОГОВОР", w / 2, 36);
+  ctx.font = "700 16px Manrope, sans-serif";
+  ctx.fillText("Долг Украины — вечный.", w / 2, 74);
+  ctx.fillText("Проценты капают криком орла.", w / 2, 100);
+  ctx.fillText("Трампу — соси-соси.", w / 2, 126);
+  ctx.font = "700 14px Manrope, sans-serif";
+  ctx.fillStyle = "#8a5a12";
+  ctx.fillText("подпись: палец вверх", w / 2, 162);
+  ctx.restore();
 }
 
 function drawExhaust(ctx: CanvasRenderingContext2D, sim: Sim, hw: number, hh: number) {
@@ -382,5 +457,6 @@ export const ASSET_NAMES = [
   "trump-fist",
   "trump-deal",
   "trump-thumb",
+  "eagle",
   ...(Object.keys(KINDS) as KindId[]),
 ];

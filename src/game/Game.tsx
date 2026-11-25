@@ -86,6 +86,7 @@ export function Game() {
         const cue = sim.cue.shift();
         if (cue === "boss") sfx.boss(true);
         else if (cue === "eagle") sfx.eagle();
+        else if (cue === "eagle-soft") sfx.eagleSoft();
         else if (cue === "maga") sfx.maga();
         else if (cue === "fist") sfx.crash();
       }
@@ -316,7 +317,7 @@ export function Game() {
                   <div className="kicker">финал</div>
                   <h1>Мирный договор</h1>
                   <p className="lede">
-                    Кулак пришёл сверху. Бочка ушла вниз, за край карты. На бумажке мирный договор, и палец вверх.
+                    Кулак сверху, бочка вниз. На бумажке долг Украины вечный, проценты орлиным криком, а Трампу — соси-соси. Палец вверх.
                   </p>
                   <div className="row">
                     <button type="button" className="ghost" onClick={toMenu}>
