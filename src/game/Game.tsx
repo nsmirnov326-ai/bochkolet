@@ -187,8 +187,6 @@ export function Game() {
                 <div className="s">{hud.points} очков{hud.combo > 1 ? ` · ×${hud.combo}` : ""}</div>
               </div>
             </div>
-            {hud.hint > 0 && <div className="radio">Газ вверх. Вплотную копится серия. Пневмопушка бьёт вперёд</div>}
-            {hud.hint <= 0 && <div className="radio">{hud.radio}</div>}
             <div className="hud-bottom">
               <div className="ticket">
                 <div className="k">бочка</div>
