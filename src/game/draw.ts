@@ -74,16 +74,16 @@ function paintBackdrop(
     ctx.fillStyle = "#8eb6d4";
     ctx.fillRect(0, 0, BASE_W, BASE_H);
   }
-  const groundY = BASE_H * 0.8;
+  const groundY = BASE_H * 0.78;
   if (far && ready(far)) {
     const plate = seamless(far);
-    const destH = BASE_H * 0.5;
-    tiled(ctx, plate, plate.width, plate.height, groundY - destH + 18, destH, sim.worldX * 0.38);
+    const destH = BASE_H * 0.4;
+    tiled(ctx, plate, plate.width, plate.height, groundY - destH + 10, destH, sim.worldX * 0.38);
   }
   if (ground && ready(ground)) {
     const plate = seamless(ground);
-    const destH = BASE_H * 0.34;
-    tiled(ctx, plate, plate.width, plate.height, groundY - 18, destH, sim.worldX);
+    const destH = BASE_H * 0.3;
+    tiled(ctx, plate, plate.width, plate.height, groundY - 4, destH, sim.worldX);
   }
   ctx.restore();
 }
@@ -434,8 +434,8 @@ function drawPlayer(ctx: CanvasRenderingContext2D, sim: Sim, images: Record<stri
 export const VIEW = { w: BASE_W, h: BASE_H };
 
 export function assetUrl(name: string) {
-  if (name.startsWith("sky") || name.startsWith("ground")) return `/game/${name}.jpg`;
-  return `/game/${name}.png`;
+  const ext = name.startsWith("sky") || name.startsWith("ground") ? "jpg" : "png";
+  return `/game/${name}.${ext}?v=4`;
 }
 
 export const ASSET_NAMES = [
