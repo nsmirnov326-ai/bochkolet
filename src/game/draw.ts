@@ -199,7 +199,7 @@ function drawEnt(
   }
   ctx.save();
   ctx.translate(cx, kind.ground ? y : y);
-  const spinning = ent.yeet || ent.kind === "sofa" || ent.kind === "bottle";
+  const spinning = ent.yeet || ent.kind === "sofa" || ent.kind === "bottle" || ent.kind === "pan";
   if (spinning) ctx.rotate(ent.spin + (ent.yeet ? 0 : sim.time * (ent.kind === "sofa" ? 0.6 : 0.4)));
   const top = kind.ground ? -ih : -ih / 2;
   ctx.drawImage(img, -iw / 2, top, iw, ih);
@@ -435,7 +435,7 @@ export const VIEW = { w: BASE_W, h: BASE_H };
 
 export function assetUrl(name: string) {
   const ext = name.startsWith("sky") || name.startsWith("ground") ? "jpg" : "png";
-  return `/game/${name}.${ext}?v=5`;
+  return `/game/${name}.${ext}?v=6`;
 }
 
 export const ASSET_NAMES = [

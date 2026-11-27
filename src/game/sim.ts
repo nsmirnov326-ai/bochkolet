@@ -314,10 +314,15 @@ export class Sim {
     this.spacePrev = space;
 
     for (const ent of this.ents) {
-      if (!ent.yeet) continue;
-      ent.yeetVy += 920 * dt;
-      ent.yeetY += ent.yeetVy * dt;
-      ent.spin += dt * 6;
+      const rush = KINDS[ent.kind].rush ?? 0;
+      if (ent.yeet) {
+        ent.yeetVy += 920 * dt;
+        ent.yeetY += ent.yeetVy * dt;
+        ent.spin += dt * 6;
+      } else if (rush) {
+        ent.x -= rush * dt;
+        ent.spin += dt * 8;
+      }
     }
 
     this.collide();
@@ -714,19 +719,22 @@ export class Sim {
   playerBox() {
     const x = this.playerX();
     const y = this.playerY();
-    return { x: x - 36, y: y - 16, w: 78, h: 36 };
+    const aspect = this.skinDef.id === "mig" ? 3.84 : this.skinDef.id === "baron" ? 2.62 : 1.88;
+    const hh = this.skinDef.drawH;
+    const hw = hh * aspect;
+    return { x: x - hw * 0.34, y: y - hh * 0.3, w: hw * 0.68, h: hh * 0.6 };
   }
 
   entBox(ent: Ent) {
     const kind = KINDS[ent.kind];
-    const iw = kind.h * 0.9;
     const ih = kind.h;
+    const iw = ih * kind.aspect;
     const cx = this.viewW * 0.36 + (ent.x - this.worldX);
     const ground = this.viewH * 0.8;
     const baseY = kind.ground ? ground - ih : this.altY(ent.alt) - ih * 0.5 + ent.yeetY;
-    const padX = kind.slim ? iw * 0.32 : iw * 0.2;
-    const padY = ih * 0.16;
-    return { x: cx - iw / 2 + padX, y: baseY + padY, w: iw - padX * 2, h: ih - padY * 2 };
+    const insetX = iw * (kind.pickup ? 0.02 : 0.05);
+    const insetY = ih * (kind.pickup ? 0.02 : 0.05);
+    return { x: cx - iw / 2 + insetX, y: baseY + insetY, w: iw - insetX * 2, h: ih - insetY * 2 };
   }
 
   altY(alt: number) {

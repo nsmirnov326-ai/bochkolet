@@ -34,6 +34,7 @@ export type KindId =
   | "pole"
   | "mic"
   | "can"
+  | "pan"
   | "case"
   | "bottle"
   | "board";
@@ -42,27 +43,32 @@ export type Kind = {
   id: KindId;
   file: string;
   h: number;
+  /** Ширина спрайта относительно высоты. Хитбокс берёт её же. */
+  aspect: number;
   hurt: boolean;
   ground: boolean;
   slim: boolean;
+  /** Дополнительная скорость навстречу борту, пикс/с. */
+  rush?: number;
   pickup?: "mic" | "patch";
   quip: string;
 };
 
 export const KINDS: Record<KindId, Kind> = {
-  chicken: { id: "chicken", file: "chicken", h: 62, hurt: true, ground: false, slim: false, quip: "Курица не диспетчер" },
-  pigeon: { id: "pigeon", file: "pigeon", h: 58, hurt: true, ground: false, slim: false, quip: "Голубь занял эшелон" },
-  sofa: { id: "sofa", file: "sofa", h: 92, hurt: true, ground: false, slim: false, quip: "Диван на встречном" },
-  drone: { id: "drone", file: "drone", h: 52, hurt: true, ground: false, slim: false, quip: "Вас сняли крупно" },
-  laundry: { id: "laundry", file: "laundry", h: 118, hurt: true, ground: false, slim: false, quip: "Бельё — не огни ВПП" },
-  tree: { id: "tree", file: "tree", h: 196, hurt: true, ground: true, slim: true, quip: "Яблоня не расступается" },
-  fence: { id: "fence", file: "fence", h: 78, hurt: true, ground: true, slim: false, quip: "Забор был против" },
-  pole: { id: "pole", file: "pole", h: 228, hurt: true, ground: true, slim: true, quip: "Провода помнят всех" },
-  mic: { id: "mic", file: "mic", h: 70, hurt: false, ground: false, slim: true, pickup: "mic", quip: "Баллон" },
-  can: { id: "can", file: "can", h: 62, hurt: false, ground: false, slim: false, pickup: "patch", quip: "Заплатка" },
-  case: { id: "case", file: "case", h: 64, hurt: true, ground: false, slim: false, quip: "Портфель тяжёлый" },
-  bottle: { id: "bottle", file: "bottle", h: 78, hurt: true, ground: false, slim: true, quip: "Шампанское в штопор" },
-  board: { id: "board", file: "board", h: 150, hurt: true, ground: true, slim: false, quip: "Билборд аплодирует" },
+  chicken: { id: "chicken", file: "chicken", h: 62, aspect: 1, hurt: true, ground: false, slim: false, quip: "Курица не диспетчер" },
+  pigeon: { id: "pigeon", file: "pigeon", h: 58, aspect: 0.74, hurt: true, ground: false, slim: false, quip: "Голубь занял эшелон" },
+  sofa: { id: "sofa", file: "sofa", h: 92, aspect: 1.82, hurt: true, ground: false, slim: false, quip: "Диван на встречном" },
+  drone: { id: "drone", file: "drone", h: 52, aspect: 2.47, hurt: true, ground: false, slim: false, quip: "Вас сняли крупно" },
+  laundry: { id: "laundry", file: "laundry", h: 132, aspect: 1.95, hurt: true, ground: true, slim: false, quip: "Бельё — не огни ВПП" },
+  tree: { id: "tree", file: "tree", h: 196, aspect: 0.83, hurt: true, ground: true, slim: true, quip: "Яблоня не расступается" },
+  fence: { id: "fence", file: "fence", h: 78, aspect: 2.2, hurt: true, ground: true, slim: false, quip: "Забор был против" },
+  pole: { id: "pole", file: "pole", h: 228, aspect: 0.5, hurt: true, ground: true, slim: true, quip: "Провода помнят всех" },
+  mic: { id: "mic", file: "mic", h: 86, aspect: 0.67, hurt: false, ground: false, slim: false, pickup: "mic", quip: "Баллон" },
+  can: { id: "can", file: "can", h: 58, aspect: 1.24, hurt: false, ground: false, slim: false, pickup: "patch", quip: "Заплатка" },
+  pan: { id: "pan", file: "pan", h: 46, aspect: 4.82, hurt: true, ground: false, slim: false, rush: 240, quip: "Сковорода сама прилетела" },
+  case: { id: "case", file: "case", h: 64, aspect: 1.44, hurt: true, ground: false, slim: false, quip: "Портфель тяжёлый" },
+  bottle: { id: "bottle", file: "bottle", h: 78, aspect: 0.51, hurt: true, ground: false, slim: true, quip: "Шампанское в штопор" },
+  board: { id: "board", file: "board", h: 150, aspect: 1.12, hurt: true, ground: true, slim: false, quip: "Билборд аплодирует" },
 };
 
 export type Beat = { kind: KindId; alt: number; gap: number };
@@ -98,6 +104,7 @@ const yard: Beat[] = [
   { kind: "pigeon", alt: 0.68, gap: 14 },
   { kind: "tree", alt: 0, gap: 17 },
   { kind: "sofa", alt: 0.42, gap: 15 },
+  { kind: "pan", alt: 0.55, gap: 12 },
   { kind: "can", alt: 0.66, gap: 14 },
   { kind: "laundry", alt: 0.34, gap: 15 },
   { kind: "fence", alt: 0, gap: 15 },
@@ -113,6 +120,7 @@ const district: Beat[] = [
   { kind: "laundry", alt: 0.48, gap: 13 },
   { kind: "pigeon", alt: 0.24, gap: 12 },
   { kind: "drone", alt: 0.66, gap: 13 },
+  { kind: "pan", alt: 0.48, gap: 11 },
   { kind: "case", alt: 0.36, gap: 13 },
   { kind: "sofa", alt: 0.52, gap: 14 },
   { kind: "can", alt: 0.28, gap: 13 },
@@ -125,6 +133,7 @@ const highway: Beat[] = [
   { kind: "drone", alt: 0.64, gap: 12 },
   { kind: "case", alt: 0.32, gap: 12 },
   { kind: "bottle", alt: 0.5, gap: 13 },
+  { kind: "pan", alt: 0.36, gap: 10 },
   { kind: "mic", alt: 0.72, gap: 12 },
   { kind: "board", alt: 0, gap: 14 },
   { kind: "sofa", alt: 0.44, gap: 13 },
@@ -141,6 +150,7 @@ const field: Beat[] = [
   { kind: "pigeon", alt: 0.62, gap: 12 },
   { kind: "tree", alt: 0, gap: 15 },
   { kind: "chicken", alt: 0.28, gap: 12 },
+  { kind: "pan", alt: 0.5, gap: 10 },
   { kind: "pole", alt: 0, gap: 15 },
   { kind: "mic", alt: 0.7, gap: 12 },
   { kind: "tree", alt: 0, gap: 15 },
@@ -156,6 +166,7 @@ const summit: Beat[] = [
   { kind: "bottle", alt: 0.34, gap: 12 },
   { kind: "case", alt: 0.55, gap: 11 },
   { kind: "drone", alt: 0.7, gap: 12 },
+  { kind: "pan", alt: 0.42, gap: 10 },
   { kind: "sofa", alt: 0.4, gap: 12 },
   { kind: "board", alt: 0, gap: 13 },
   { kind: "mic", alt: 0.72, gap: 11 },
