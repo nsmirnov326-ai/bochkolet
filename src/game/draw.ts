@@ -77,8 +77,8 @@ function paintBackdrop(
   const groundY = BASE_H * 0.8;
   if (far && ready(far)) {
     const plate = seamless(far);
-    const destH = BASE_H * 0.5;
-    tiled(ctx, plate, plate.width, plate.height, groundY - destH + 18, destH, sim.worldX * 0.38);
+    const destH = BASE_H * 0.62;
+    tiled(ctx, plate, plate.width, plate.height, groundY - destH + 28, destH, sim.worldX * 0.38);
   }
   if (ground && ready(ground)) {
     const plate = seamless(ground);
@@ -435,7 +435,7 @@ export const VIEW = { w: BASE_W, h: BASE_H };
 
 export function assetUrl(name: string) {
   const ext = name.startsWith("sky") || name.startsWith("ground") ? "jpg" : "png";
-  return `/game/${name}.${ext}?v=4`;
+  return `/game/${name}.${ext}?v=5`;
 }
 
 export const ASSET_NAMES = [
